@@ -1,8 +1,9 @@
 name: Release
 
 on:
-  milestone:
-    types: [closed]
+  workflow_dispatch
+  # milestone:
+  #   types: [closed]
     
 jobs:
   cypress-run:

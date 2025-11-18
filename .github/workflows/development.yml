@@ -1,10 +1,11 @@
 name: Development
 
 on:
-  push:
-    branches-ignore:
-      - master
-      - main
+  workflow_dispatch
+  # push:
+  #   branches-ignore:
+  #     - master
+  #     - main
 
 jobs:
   test_default:
