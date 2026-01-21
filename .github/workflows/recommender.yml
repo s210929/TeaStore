@@ -47,7 +47,7 @@ jobs:
       #   with:
       #     context: ./services/tools.descartes.teastore.recommender
       #     push: false
-      #     tags: descartesresearch/teastore-recommender:${{ env.GIT_BRANCH }}
+      #     tags: descartesresearch/teastore-recommender:ci
 
   loadtest:
     name: Locust load test
@@ -65,7 +65,7 @@ jobs:
 
       - name: Start recommender container
         run: |
-          docker run -d --name teastore-recommender -p 8081:8080 -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 descartesresearch/teastore-recommender:${{ env.GIT_BRANCH }}
+          docker run -d --name teastore-recommender -p 8081:8080 -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 descartesresearch/teastore-recommender:ci
 
       - name: Upload WireMock mappings
         run: |
