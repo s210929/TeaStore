@@ -29,23 +29,19 @@ jobs:
 
       - name: Prepare WireMock mappings
         run: |
-          docker cp .github/wiremock/mappings \
-            $(docker ps -qf "ancestor=wiremock/wiremock"):/home/wiremock/
+          docker cp .github/wiremock/mappings $(docker ps -qf "ancestor=wiremock/wiremock"):/home/wiremock/
 
       - name: Build recommender with mocked services
         env:
           TEASTORE_REGISTRY_URL: http://localhost:8080
           TEASTORE_PERSISTENCE_URL: http://localhost:8080
         run: |
-          mvn clean install \
-            -pl services/tools.descartes.teastore.recommender \
-            -am
+          mvn clean install -pl services/tools.descartes.teastore.recommender -am
 
           GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
           echo "GIT_BRANCH=${GIT_BRANCH}" >> ${GITHUB_ENV}
 
-          sed -i "s/teastore-base:latest/teastore-base:${GIT_BRANCH}/g" \
-            services/tools.descartes.teastore.recommender/Dockerfile
+          sed -i "s/teastore-base:latest/teastore-base:${GIT_BRANCH}/g" services/tools.descartes.teastore.recommender/Dockerfile
 
       - name: Build teastore-recommender Docker image
         uses: docker/build-push-action@v2
