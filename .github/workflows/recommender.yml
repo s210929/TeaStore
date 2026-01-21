@@ -40,8 +40,6 @@ jobs:
           GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
           echo "GIT_BRANCH=${GIT_BRANCH}" >> ${GITHUB_ENV}
 
-          sed -i "s/teastore-base:latest/teastore-base:${GIT_BRANCH}/g" services/tools.descartes.teastore.recommender/Dockerfile
-
       - name: Build teastore-recommender Docker image
         uses: docker/build-push-action@v2
         with:
