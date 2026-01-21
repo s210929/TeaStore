@@ -42,12 +42,12 @@ jobs:
 
           sed -i "s/teastore-base:latest/teastore-base:${GIT_BRANCH}/g" services/tools.descartes.teastore.recommender/Dockerfile
 
-      # - name: Build teastore-recommender Docker image
-      #   uses: docker/build-push-action@v2
-      #   with:
-      #     context: ./services/tools.descartes.teastore.recommender
-      #     push: false
-      #     tags: descartesresearch/teastore-recommender:ci
+      - name: Build teastore-recommender Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./services/tools.descartes.teastore.recommender
+          push: false
+          tags: descartesresearch/teastore-recommender:ci
 
   loadtest:
     name: Locust load test
@@ -77,6 +77,6 @@ jobs:
         run: |
           pip install locust
 
-      - name: Run Locust load test (headless)
+      - name: Run Locust load test
         run: |
           locust -f examples/locust/locustfile.py --headless -u 20 -r 5 -t 2m --host http://localhost:8081 --only-summary
