@@ -13,12 +13,6 @@ jobs:
         image: wiremock/wiremock:3.3.1
         ports:
           - 8080:8080
-        options: >-
-          --health-cmd "wget -qO- http://localhost:8080/__admin/mappings || exit 1"
-          --health-interval 5s
-          --health-timeout 2s
-          --health-retries 10
-          -v ${{ github.workspace }}/.github/wiremock/mappings:/home/wiremock/mappings:ro
 
     steps:
       - uses: actions/checkout@v2
@@ -27,6 +21,14 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
+
+      - name: Upload WireMock mappings
+        run: |
+          for f in .github/wiremock/mappings/*.json; do
+            curl -s -X POST http://localhost:8080/__admin/mappings \
+                -H "Content-Type: application/json" \
+                --data @"$f"
+          done    
 
       - name: Build recommender with mocked services
         env:
