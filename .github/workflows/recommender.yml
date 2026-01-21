@@ -18,7 +18,7 @@ jobs:
           --health-interval 5s
           --health-timeout 2s
           --health-retries 10
-          -v ${{ github.workspace }}/.github/wiremock:/home/wiremock
+          -v ${{ github.workspace }}/.github/wiremock/mappings:/home/wiremock/mappings:ro
 
     steps:
       - uses: actions/checkout@v2
