@@ -65,18 +65,12 @@ jobs:
 
       - name: Start recommender container
         run: |
-          docker run -d \
-            --name teastore-recommender \
-            -p 8081:8080 \
-            -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 \
-            descartesresearch/teastore-recommender:${{ env.GIT_BRANCH }}
+          docker run -d --name teastore-recommender -p 8081:8080 -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 descartesresearch/teastore-recommender:${{ env.GIT_BRANCH }}
 
       - name: Upload WireMock mappings
         run: |
           for f in .github/wiremock/mappings/*.json; do
-            curl -s -X POST http://localhost:8080/__admin/mappings \
-              -H "Content-Type: application/json" \
-              --data @"$f"
+            curl -s -X POST http://localhost:8080/__admin/mappings -H "Content-Type: application/json" --data @"$f"
           done
 
       - name: Install Locust
@@ -85,11 +79,4 @@ jobs:
 
       - name: Run Locust load test (headless)
         run: |
-          locust \
-            -f examples/locust/locustfile.py \
-            --headless \
-            -u 20 \
-            -r 5 \
-            -t 2m \
-            --host http://localhost:8081 \
-            --only-summary
+          locust -f examples/locust/locustfile.py --headless -u 20 -r 5 -t 2m --host http://localhost:8081 --only-summary
