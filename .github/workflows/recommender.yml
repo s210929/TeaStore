@@ -18,6 +18,7 @@ jobs:
           --health-interval 5s
           --health-timeout 2s
           --health-retries 10
+          -v ${{ github.workspace }}/.github/wiremock:/home/wiremock
 
     steps:
       - uses: actions/checkout@v2
@@ -26,10 +27,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-
-      - name: Prepare WireMock mappings
-        run: |
-          docker cp .github/wiremock/mappings $(docker ps -qf "ancestor=wiremock/wiremock"):/home/wiremock/
 
       - name: Build recommender with mocked services
         env:
