@@ -197,6 +197,22 @@ spec:
         - name: REGISTRY_HOST
           value: "teastore-registry"
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-recommender
+  labels:
+    app: teastore
+    run: teastore-recommender
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    nodePort: 30081
+    protocol: TCP
+  selector:
+    run: teastore-recommender
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
