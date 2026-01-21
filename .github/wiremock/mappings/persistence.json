@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/services/persistence"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [
+      {
+        "name": "persistence",
+        "uri": "http://localhost:8080"
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

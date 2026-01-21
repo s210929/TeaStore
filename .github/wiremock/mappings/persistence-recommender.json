@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/persistence/recommender/.*"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [1, 2, 3, 4],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

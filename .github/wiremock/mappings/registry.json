@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/services/.*"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [
+      {
+        "name": "mocked-service",
+        "uri": "http://localhost:8080"
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}
