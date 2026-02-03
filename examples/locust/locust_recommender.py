@@ -13,13 +13,8 @@ class RecommenderUser(HttpUser):
         user_id = random.randint(1, 99)
         data = {"item": 1,
                 "uid": user_id}
-        response = self.client.post("/tools.descartes.teastore.recommender/rest/recommendsingle", params={data})
-        # with self.client.post(
-        #     f"/recommendation/{user_id}",
-        #     name="/recommendation/{userId}",
-        #     catch_response=True
-        # ) as response:
-        #     if response.status_code != 200:
-        #         response.failure(f"Status {response.status_code}")
-        #         logging.info("Recommendation failed")
-        logging.info(f"Response: {response}")
+        response = self.client.post("/tools.descartes.teastore.recommender/rest/recommendsingle", json={})
+        if (response.ok):
+            logging.info(f"Response ok: {response.status_code}")
+        else:
+            logging.info(f"Response not ok: {response.status_code}")
