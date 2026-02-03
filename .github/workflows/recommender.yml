@@ -112,5 +112,5 @@ jobs:
             -u 20 \
             -r 5 \
             -t 1m \
-            --host http://localhost:8081 \
+            --host http://localhost:8080 \
             --only-summary
