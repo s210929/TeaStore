@@ -97,6 +97,7 @@ jobs:
       - name: Install Locust
         run: |
           pip install "locust[fast]"
+          pip install zope.event zope.interface gevent
 
       - name: Run Locust load test
         run: |
