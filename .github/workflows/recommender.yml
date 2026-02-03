@@ -3,6 +3,10 @@ name: Recommender Build
 on:
   workflow_dispatch
 
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}/teastore-recommender
+  IMAGE_TAG: loadtest
+
 jobs:
   build:
     name: Build recommender with WireMock
@@ -15,9 +19,9 @@ jobs:
           - 8080:8080
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '11'
@@ -26,8 +30,8 @@ jobs:
         run: |
           for f in .github/wiremock/mappings/*.json; do
             curl -s -X POST http://localhost:8080/__admin/mappings \
-                -H "Content-Type: application/json" \
-                --data @"$f"
+              -H "Content-Type: application/json" \
+              --data @"$f"
           done    
 
       - name: Build recommender with mocked services
@@ -35,17 +39,23 @@ jobs:
           TEASTORE_REGISTRY_URL: http://localhost:8080
           TEASTORE_PERSISTENCE_URL: http://localhost:8080
         run: |
-          mvn clean install -pl services/tools.descartes.teastore.recommender -am
+          mvn clean install \
+            -pl services/tools.descartes.teastore.recommender \
+            -am
 
-          GIT_BRANCH=${GITHUB_BASE_REF:-${GITHUB_REF#refs/heads/}}
-          echo "GIT_BRANCH=${GIT_BRANCH}" >> ${GITHUB_ENV}
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build teastore-recommender Docker image
-        uses: docker/build-push-action@v2
+      - name: Build and push teastore-recommender Docker image
+        uses: docker/build-push-action@v5
         with:
           context: ./services/tools.descartes.teastore.recommender
-          push: false
-          tags: descartesresearch/teastore-recommender:ci
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
   loadtest:
     name: Locust load test
@@ -61,14 +71,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Start recommender container
         run: |
-          docker run -d --name teastore-recommender -p 8081:8080 -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 descartesresearch/teastore-recommender:ci
+          docker run -d \
+            --name teastore-recommender \
+            -p 8081:8080 \
+            -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 \
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Upload WireMock mappings
         run: |
           for f in .github/wiremock/mappings/*.json; do
-            curl -s -X POST http://localhost:8080/__admin/mappings -H "Content-Type: application/json" --data @"$f"
+            curl -s -X POST http://localhost:8080/__admin/mappings \
+              -H "Content-Type: application/json" \
+              --data @"$f"
           done
 
       - name: Install Locust
@@ -77,4 +100,11 @@ jobs:
 
       - name: Run Locust load test
         run: |
-          locust -f examples/locust/locustfile.py --headless -u 20 -r 5 -t 2m --host http://localhost:8081 --only-summary
+          locust \
+            -f examples/locust/locustfile.py \
+            --headless \
+            -u 20 \
+            -r 5 \
+            -t 2m \
+            --host http://localhost:8081 \
+            --only-summary
