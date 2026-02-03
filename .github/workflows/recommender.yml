@@ -94,10 +94,15 @@ jobs:
               --data @"$f"
           done
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'    
+            
       - name: Install Locust
         run: |
-          pip install "locust[fast]"
-          pip install zope.event zope.interface gevent
+          python -m pip install --upgrade pip
+          python -m pip install "locust[fast]"
 
       - name: Run Locust load test
         run: |
