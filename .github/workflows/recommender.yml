@@ -104,13 +104,43 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install "locust[fast]"
 
-      - name: Run Locust load test
+      - name: Test Rest 1
         run: |
-          locust \
-            -f examples/locust/locust_recommender.py \
-            --headless \
-            -u 20 \
-            -r 5 \
-            -t 1m \
-            --host http://localhost:8080 \
-            --only-summary
+          curl -X POST "http://localhost:8081/tools.descartes.teastore.recommender/rest/recommendsingle?uid=42" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -d '{
+                "productId": 1,
+                "quantity": 1
+              }'
+
+      - name: Test Rest 2
+        run: |
+          curl -X POST "http://localhost:8080/tools.descartes.teastore.recommender/rest/recommendsingle?uid=42" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -d '{
+                "productId": 1,
+                "quantity": 1
+              }'
+
+      - name: Test Rest 3
+        run: |
+          curl -X POST "http://localhost:8080/rest/recommendsingle?uid=42" \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/json" \
+          -d '{
+                "productId": 1,
+                "quantity": 1
+              }'
+
+      # - name: Run Locust load test
+      #   run: |
+      #     locust \
+      #       -f examples/locust/locust_recommender.py \
+      #       --headless \
+      #       -u 20 \
+      #       -r 5 \
+      #       -t 1m \
+      #       --host http://localhost:8080 \
+      #       --only-summary
