@@ -4,7 +4,7 @@ on:
   workflow_dispatch
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository }}/teastore-recommender
+  IMAGE_NAME: ghcr.io/s210929/teastore/teastore-recommender
   IMAGE_TAG: loadtest
 
 jobs:
