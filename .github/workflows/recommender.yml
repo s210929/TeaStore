@@ -96,7 +96,7 @@ jobs:
 
       - name: Install Locust
         run: |
-          pip install locust
+          pip install "locust[fast]"
 
       - name: Run Locust load test
         run: |
