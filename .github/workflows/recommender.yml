@@ -84,7 +84,6 @@ jobs:
             --name teastore-recommender \
             -p 8081:8080 \
             -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 \
-            -e recommenderAlgorithm=Popularity \
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Upload WireMock mappings
@@ -104,6 +103,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install "locust[fast]"
+      
+      - name: Test recommender endpoint
+        run: |
+          curl -X POST "http://localhost:8081/recommendsingle?uid=1" \
+            -H "Content-Type: application/json" \
+            -d '{"productId":1,"quantity":1}'
 
       - name: Run Locust load test
         run: |
@@ -113,5 +118,4 @@ jobs:
             -u 20 \
             -r 5 \
             -t 1m \
-            --host http://localhost:8081 \
-            --only-summary
+            --host http://localhost:8081

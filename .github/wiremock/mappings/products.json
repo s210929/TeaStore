@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/products"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      { "id": 1, "name": "Product1", "categoryId": 1 },
+      { "id": 2, "name": "Product2", "categoryId": 1 },
+      { "id": 3, "name": "Product3", "categoryId": 2 }
+    ]
+  }
+}
