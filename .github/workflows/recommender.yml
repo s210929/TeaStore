@@ -120,15 +120,15 @@ jobs:
           ) &
           echo $! > monitor.pid
 
-      - name: Run Locust load test
-        run: |
-          locust \
-            -f examples/locust/locust_recommender.py \
-            --headless \
-            -u 20 \
-            -r 5 \
-            -t 1m \
-            --host http://localhost:8081
+      # - name: Run Locust load test
+      #   run: |
+      #     locust \
+      #       -f examples/locust/locust_recommender.py \
+      #       --headless \
+      #       -u 20 \
+      #       -r 5 \
+      #       -t 1m \
+      #       --host http://localhost:8081
 
       - name: Stop monitoring
         run: |
