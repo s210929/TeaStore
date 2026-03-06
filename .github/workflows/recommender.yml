@@ -104,9 +104,9 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install "locust[fast]"
       
-      # - name: Train recommender endpoint
-      #   run: |
-      #     curl -X GET "http://localhost:8081/tools.descartes.teastore.recommender/rest/train"
+      - name: Train recommender endpoint
+        run: |
+          curl -X GET "http://localhost:8081/tools.descartes.teastore.recommender/rest/train"
 
       - name: Start container monitoring
         run: |
