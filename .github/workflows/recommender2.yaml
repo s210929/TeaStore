@@ -78,12 +78,18 @@ jobs:
             -p 8082:8080 \
             descartesresearch/teastore-persistence
 
+      - name: Debug containers
+        run: |
+            docker ps -a
+            echo "---- DB logs ----"
+            docker logs teastore-db || true
+            echo "---- Persistence logs ----"
+            docker logs teastore-persistence || true
+            
       - name: Wait for persistence
         run: |
-            until curl -s http://localhost:8082 > /dev/null; do
-                echo "Waiting for persistence..."
-                sleep 5
-            done
+            echo "Waiting for persistence..."
+            sleep 20
 
       - name: Start recommender container
         run: |
