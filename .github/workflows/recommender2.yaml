@@ -85,11 +85,19 @@ jobs:
             docker logs teastore-db || true
             echo "---- Persistence logs ----"
             docker logs teastore-persistence || true
-            
+
       - name: Wait for persistence
         run: |
             echo "Waiting for persistence..."
             sleep 20
+        
+      - name: Debug containers 2
+        run: |
+            docker ps -a
+            echo "---- DB logs ----"
+            docker logs teastore-db || true
+            echo "---- Persistence logs ----"
+            docker logs teastore-persistence || true
 
       - name: Start recommender container
         run: |
