@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/services/.*"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": [
+      {
+        "id": "recommender",
+        "name": "recommender"
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
+  }
+}

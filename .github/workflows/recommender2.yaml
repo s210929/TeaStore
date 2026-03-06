@@ -57,7 +57,7 @@ jobs:
 
       - name: Upload WireMock mappings
         run: |
-          for f in .github/wiremock/mappings/registry.json; do
+          for f in .github/wiremock/mappings/registry*.json; do
             curl -s -X POST http://localhost:8080/__admin/mappings \
               -H "Content-Type: application/json" \
               --data @"$f"
