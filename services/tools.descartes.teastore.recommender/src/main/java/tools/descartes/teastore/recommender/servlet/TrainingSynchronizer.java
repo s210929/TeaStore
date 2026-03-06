@@ -175,7 +175,7 @@ public final class TrainingSynchronizer {
 		setReady(false);
 		LOG.trace("Retrieving data objects from database...");
 
-		waitForPersistence();
+		// waitForPersistence();
 
 		List<OrderItem> items = null;
 		List<Order> orders = null;
