@@ -76,6 +76,9 @@ jobs:
             --name teastore-persistence \
             --link teastore-db \
             -p 8082:8080 \
+            -e "DB_HOST=teastore-db" \
+            -e "DB_PORT=3306" \
+            -e "DB_NAME=teadb" \
             descartesresearch/teastore-persistence
 
       - name: Debug containers
