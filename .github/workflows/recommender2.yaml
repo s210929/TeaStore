@@ -46,8 +46,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
+    services:
+      wiremock:
+        image: wiremock/wiremock:3.3.1
+        ports:
+          - 8080:8080
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Upload WireMock mappings
+        run: |
+          for f in .github/wiremock/mappings/registry.json; do
+            curl -s -X POST http://localhost:8080/__admin/mappings \
+              -H "Content-Type: application/json" \
+              --data @"$f"
+          done
 
       - name: Login to GHCR
         uses: docker/login-action@v3
