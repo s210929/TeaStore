@@ -65,8 +65,10 @@ jobs:
 
       - name: Wait for DB
         run: |
-          echo "Waiting for DB..."
-          sleep 20
+            until nc -z localhost 3306; do
+                echo "Waiting for DB..."
+                sleep 3
+            done
 
       - name: Start Persistence
         run: |
@@ -78,8 +80,10 @@ jobs:
 
       - name: Wait for persistence
         run: |
-          echo "Waiting for persistence..."
-          sleep 20
+            until curl -s http://localhost:8082 > /dev/null; do
+                echo "Waiting for persistence..."
+                sleep 5
+            done
 
       - name: Start recommender container
         run: |
@@ -93,7 +97,11 @@ jobs:
         run: |
           echo "Waiting for recommender..."
           sleep 15
-
+      
+      - name: Stream recommender logs
+        run: |
+            docker logs -f teastore-recommender &    
+          
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
