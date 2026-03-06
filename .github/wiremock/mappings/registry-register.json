@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPathPattern": "/services/.*"
+    "urlPathPattern": "/tools.descartes.teastore.registry/.*"
   },
   "response": {
     "status": 200,

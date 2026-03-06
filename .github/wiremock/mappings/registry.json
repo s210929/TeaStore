@@ -1,9 +1,18 @@
 {
   "request": {
-    "urlPattern": "/tools.descartes.teastore.registry/.*"
+    "method": "GET",
+    "urlPathPattern": "/services.*"
   },
   "response": {
     "status": 200,
-    "jsonBody": {}
+    "jsonBody": [
+      {
+        "name": "mocked-service",
+        "uri": "http://localhost:8080"
+      }
+    ],
+    "headers": {
+      "Content-Type": "application/json"
+    }
   }
 }
