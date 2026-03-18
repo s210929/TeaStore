@@ -122,8 +122,6 @@ jobs:
             --link teastore-persistence \
             --link teastore-registry \
             -p 8081:8080 \
-            -e TEASTORE_REGISTRY_URL=teastore-registry:8080 \
-            -e TEASTORE_PERSISTENCE_URL=teastore-persistence:8082 \
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Wait for recommender
