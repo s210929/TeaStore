@@ -74,12 +74,12 @@ jobs:
             --network teastore-net \
             descartesresearch/teastore-db
 
-      - name: Wait for DB
-        run: |
-            until nc -z localhost 3306; do
-                echo "Waiting for DB..."
-                sleep 3
-            done
+      # - name: Wait for DB
+      #   run: |
+      #       until nc -z localhost 3306; do
+      #           echo "Waiting for DB..."
+      #           sleep 3
+      #       done
 
       - name: Start Persistence
         run: |
@@ -103,12 +103,12 @@ jobs:
             echo "---- Registry logs ----"
             docker logs teastore-registry || true
 
-      - name: Wait for persistence
-        run: |
-          until curl -s http://localhost:8082 > /dev/null; do
-            echo "Waiting for persistence..."
-            sleep 5
-          done
+      # - name: Wait for persistence
+      #   run: |
+      #     until curl -s http://localhost:8082 > /dev/null; do
+      #       echo "Waiting for persistence..."
+      #       sleep 5
+      #     done
         
       - name: Debug containers 2
         run: |
@@ -128,12 +128,12 @@ jobs:
             -e TEASTORE_PERSISTENCE_URL=http://teastore-persistence:8080 \
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
-      - name: Wait for recommender
-        run: |
-          until curl -s http://localhost:8081 > /dev/null; do
-            echo "Waiting for recommender..."
-            sleep 5
-          done
+      # - name: Wait for recommender
+      #   run: |
+      #     until curl -s http://localhost:8081 > /dev/null; do
+      #       echo "Waiting for recommender..."
+      #       sleep 5
+      #     done
       
       - name: Stream recommender logs
         run: |
