@@ -120,9 +120,10 @@ jobs:
           docker run -d \
             --name teastore-recommender \
             --link teastore-persistence \
+            --link teastore-registry \
             -p 8081:8080 \
-            -e TEASTORE_REGISTRY_URL=http://host.docker.internal:8080 \
-            -e TEASTORE_PERSISTENCE_URL=http://host.docker.internal:8082 \
+            -e TEASTORE_REGISTRY_URL=teastore-registry:8080 \
+            -e TEASTORE_PERSISTENCE_URL=teastore-persistence:8082 \
             ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Wait for recommender
