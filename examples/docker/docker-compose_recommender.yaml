@@ -19,10 +19,14 @@ services:
       REGISTRY_HOST: "registry"
       DB_HOST: "db"
       DB_PORT: "3306"
+      DB_USER: "root"
+      DB_PASSWORD: "root"
   recommender:
     image: ghcr.io/s210929/teastore/teastore-recommender:loadtest
     expose:
       - "8080"
+    ports:
+      - "8080:8080"
     environment:
       HOST_NAME: "recommender"
       REGISTRY_HOST: "registry"
