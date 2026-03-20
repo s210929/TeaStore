@@ -78,7 +78,7 @@ jobs:
       - name: Train recommender
         run: |
           curl -X GET \
-          http://recommender-1:8080/tools.descartes.teastore.recommender/rest/train
+          http://docker-recommender-1:8080/tools.descartes.teastore.recommender/rest/train
 
       - name: Start container monitoring
         run: |
