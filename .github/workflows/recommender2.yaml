@@ -72,10 +72,13 @@ jobs:
       - name: Docker logs
         run: docker compose -f examples/docker/docker-compose_recommender.yaml logs
         
+      - name: Docker ps
+        run: docker ps -a
+
       - name: Train recommender
         run: |
           curl -X GET \
-          http://localhost:8080/tools.descartes.teastore.recommender/rest/train
+          http://recommender-1:8080/tools.descartes.teastore.recommender/rest/train
 
       - name: Start container monitoring
         run: |
