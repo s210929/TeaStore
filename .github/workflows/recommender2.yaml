@@ -57,7 +57,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Start docker container
-        run: docker compose -f examples/docker/docker-compose_recommender.yaml up
+        run: docker compose -f examples/docker/docker-compose_recommender.yaml up -d
 
       - name: Setup Python
         uses: actions/setup-python@v4
