@@ -55,90 +55,10 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Create network
-        run: docker network create teastore-net
 
-      - name: Start Registry
-        run: |
-          docker run -d \
-            --name teastore-registry \
-            --network teastore-net \
-            -p 8080:8080 \
-            descartesresearch/teastore-registry   
+      - name: Start docker container
+        run: docker-compose -f examples/docker/docker-compose_recommender.yaml up
 
-      - name: Start DB
-        run: |
-          docker run -d \
-            --name teastore-db \
-            --network teastore-net \
-            descartesresearch/teastore-db
-
-      # - name: Wait for DB
-      #   run: |
-      #       until nc -z localhost 3306; do
-      #           echo "Waiting for DB..."
-      #           sleep 3
-      #       done
-
-      - name: Start Persistence
-        run: |
-          docker run -d \
-            --name teastore-persistence \
-            --network teastore-net \
-            -e "DB_HOST=teastore-db" \
-            -e "DB_PORT=3306" \
-            -e "DB_NAME=teadb" \
-            -e "DB_USER=root" \
-            -e "DB_PASSWORD=root" \
-            descartesresearch/teastore-persistence
-
-      - name: Debug containers
-        run: |
-            docker ps -a
-            echo "---- DB logs ----"
-            docker logs teastore-db || true
-            echo "---- Persistence logs ----"
-            docker logs teastore-persistence || true
-            echo "---- Registry logs ----"
-            docker logs teastore-registry || true
-
-      # - name: Wait for persistence
-      #   run: |
-      #     until curl -s http://localhost:8082 > /dev/null; do
-      #       echo "Waiting for persistence..."
-      #       sleep 5
-      #     done
-        
-      - name: Debug containers 2
-        run: |
-            docker ps -a
-            echo "---- DB logs ----"
-            docker logs teastore-db || true
-            echo "---- Persistence logs ----"
-            docker logs teastore-persistence || true
-
-      - name: Start recommender container
-        run: |
-          docker run -d \
-            --name teastore-recommender \
-            --network teastore-net \
-            -p 8081:8080 \
-            -e TEASTORE_REGISTRY_URL=http://teastore-registry:8080 \
-            -e TEASTORE_PERSISTENCE_URL=http://teastore-persistence:8080 \
-            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-
-      # - name: Wait for recommender
-      #   run: |
-      #     until curl -s http://localhost:8081 > /dev/null; do
-      #       echo "Waiting for recommender..."
-      #       sleep 5
-      #     done
-      
-      - name: Stream recommender logs
-        run: |
-            docker logs -f teastore-recommender &    
-          
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -148,11 +68,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install "locust[fast]"
-
+        
+      - name: Docker logs
+        run: docker compose -f examples/docker/docker-compose_recommender.yaml logs
+        
       - name: Train recommender
         run: |
           curl -X GET \
-          http://localhost:8081/tools.descartes.teastore.recommender/rest/train
+          http://localhost:8080/tools.descartes.teastore.recommender/rest/train
 
       - name: Start container monitoring
         run: |
@@ -174,11 +97,14 @@ jobs:
             -u 20 \
             -r 5 \
             -t 1m \
-            --host http://localhost:8081
+            --host http://localhost:8080
 
       - name: Stop monitoring
         run: |
           kill $(cat monitor.pid)
+      
+      - name: Stop docker container
+        run: docker-compose -f examples/docker/docker-compose_recommender.yaml down --volumes --remove-orphans
 
       - name: Upload container stats
         uses: actions/upload-artifact@v4

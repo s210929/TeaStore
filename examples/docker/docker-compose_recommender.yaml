@@ -1,0 +1,28 @@
+version: '3'
+services:
+  registry:
+    image: descartesresearch/teastore-registry
+    expose:
+      - "8080"
+  db:
+    image: descartesresearch/teastore-db
+    expose:
+      - "3306"
+    ports:
+      - "3306:3306"
+  persistence:
+    image: descartesresearch/teastore-persistence
+    expose:
+      - "8080"
+    environment:
+      HOST_NAME: "persistence"
+      REGISTRY_HOST: "registry"
+      DB_HOST: "db"
+      DB_PORT: "3306"
+  recommender:
+    image: ghcr.io/s210929/teastore/teastore-recommender:loadtest
+    expose:
+      - "8080"
+    environment:
+      HOST_NAME: "recommender"
+      REGISTRY_HOST: "registry"
