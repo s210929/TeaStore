@@ -135,7 +135,8 @@ public final class RecommenderSelector implements IRecommender {
 	public List<Long> recommendProducts(Long userid, List<OrderItem> currentItems)
 			throws UnsupportedOperationException {
 		try {
-			wait(1000);
+			// delay for testing purposes
+			wait(5000);
 			return recommender.recommendProducts(userid, currentItems);
 		} catch (UseFallBackException e) {
 			// a UseFallBackException is usually ignored (as it is conceptual and might
