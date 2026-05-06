@@ -30,6 +30,8 @@ ENV TOMCAT_HEAP_MEM_PERCENTAGE 50
 ENV LOG_TO_FILE false
 ENV RABBITMQ_HOST unset
 ENV USE_HTTPS false
+ENV ENABLE_OTEL false
+ENV OTEL_EXPORTER_OTLP_ENDPOINT http://localhost:4317
 
 # Copy script to replace placeholders in context.xml with the environment variables
 COPY start.sh /usr/local/tomcat/bin/start.sh
@@ -40,10 +42,17 @@ RUN chmod +x /usr/local/tomcat/bin/start.sh
 # ENV JAVA_OPTS $JAVA_OPTS -Dsecurerandom.source=file 837:/dev/urandom
 
 RUN mkdir -p /kieker/logs
+# Create metrics directory for OpenTelemetry
+RUN mkdir -p /metrics
+# Create directory for OpenTelemetry agent
+RUN mkdir -p /otel/agent /otel/config
+# Download OpenTelemetry Java Agent from official releases
+RUN curl -L https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.31.0/opentelemetry-javaagent.jar -o /otel/agent/opentelemetry-javaagent.jar
 # Import self-signed certificate for HTTPS teastore into keystore. NOTE: to adapt certificate hostnames, configure and run ssl/generate_cert.sh and rebuild the container!
 RUN keytool -import -noprompt -trustcacerts -alias teastoressl -file /usr/local/tomcat/ssl/cert.pem -keystore "/opt/java/openjdk/lib/security/cacerts" -storepass changeit
 
 COPY kieker.monitoring.properties 							/kieker/config/kieker.monitoring.properties
+COPY otel-config.properties 									/otel/config/otel-config.properties
 COPY aop.xml 												            /usr/local/tomcat/lib/aop.xml
 COPY kieker-2.0.0-aspectj.jar 					/kieker/agent/agent.jar
 

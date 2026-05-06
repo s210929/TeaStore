@@ -62,6 +62,18 @@ spec:
         env:
         - name: USE_POD_IP
           value: "true"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-registry"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://localhost:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -109,6 +121,18 @@ spec:
           value: "teastore-db"
         - name: DB_PORT
           value: "3306"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-persistence"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://localhost:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -138,6 +162,18 @@ spec:
           value: "true"
         - name: REGISTRY_HOST
           value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-auth"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://localhost:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -167,6 +203,18 @@ spec:
           value: "true"
         - name: REGISTRY_HOST
           value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-image"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://localhost:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -196,6 +244,18 @@ spec:
           value: "true"
         - name: REGISTRY_HOST
           value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-recommender"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://localhost:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -241,6 +301,18 @@ spec:
           value: "true"
         - name: REGISTRY_HOST
           value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-webui"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://localhost:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
