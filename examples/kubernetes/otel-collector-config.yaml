@@ -1,0 +1,70 @@
+# OpenTelemetry Collector Configuration for Prometheus
+# This configuration receives OTLP metrics from applications and exports to Prometheus
+
+receivers:
+  # OTLP receiver listens for OpenTelemetry Protocol data
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # Batch processor groups spans/metrics for efficient exporting
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  
+  # Memory limiter to prevent memory overuse
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+  # Add resource attributes
+  resource:
+    attributes:
+      add:
+        service.namespace: "teastore"
+        deployment.environment: "kubernetes"
+
+exporters:
+  # Prometheus exporter makes metrics available on an HTTP endpoint
+  # Prometheus can scrape this endpoint
+  prometheus:
+    endpoint: "0.0.0.0:8888"
+    namespace: "teastore"
+    const_labels:
+      environment: "kubernetes"
+      cluster: "default"
+
+  # Logging exporter for debugging
+  logging:
+    loglevel: info
+
+  # Optional: OTLP exporter for forwarding to another collector
+  otlp:
+    client:
+      endpoint: "localhost:4317"
+      tls:
+        insecure: true
+
+service:
+  pipelines:
+    # Metrics pipeline: receive OTLP metrics and export to Prometheus
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [prometheus, logging]
+    
+    # Traces pipeline (optional): forward traces to logging for debugging
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, resource]
+      exporters: [logging]
+  
+  # Telemetry for the collector itself
+  telemetry:
+    logs:
+      level: info

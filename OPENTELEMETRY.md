@@ -6,6 +6,28 @@ This document describes the OpenTelemetry implementation for the TeaStore applic
 
 OpenTelemetry Java Agent has been integrated into the TeaStore application to provide automatic instrumentation of HTTP requests, JDBC calls, and other Java operations. The agent is downloaded from the official GitHub releases and runs as a Java agent during application startup.
 
+## Quick Start with Prometheus
+
+To get started with **Prometheus monitoring** (recommended for metrics):
+
+```bash
+# Deploy everything with one command (OTel Collector, Prometheus, and all TeaStore services)
+kubectl apply -f examples/kubernetes/teastore-with-otel-prometheus.yaml
+
+# Wait for all pods to be ready (~2-3 minutes)
+kubectl get pods -w
+
+# Access Prometheus UI
+kubectl port-forward svc/prometheus 9090:9090
+# Open: http://localhost:9090
+```
+
+**Documentation:**
+1. **[PROMETHEUS_QUICKSTART.md](PROMETHEUS_QUICKSTART.md)** - Quick reference and common queries
+2. **[OTEL_PROMETHEUS_GUIDE.md](OTEL_PROMETHEUS_GUIDE.md)** - Full guide with dashboards and troubleshooting
+
+For **technical details** of OTel configuration, continue reading below.
+
 ## Architecture
 
 ### Components

@@ -1,0 +1,52 @@
+# Prometheus Configuration
+# Scrapes metrics from OpenTelemetry Collector
+
+global:
+  scrape_interval: 15s      # Scrape metrics every 15 seconds
+  evaluation_interval: 15s   # Evaluate alerting rules every 15 seconds
+  external_labels:
+    cluster: 'kubernetes'
+    environment: 'teastore'
+
+# Alerting configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Rule files (optional)
+rule_files: []
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # OpenTelemetry Collector metrics endpoint
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - source_labels: [__scheme__]
+        target_label: scheme
+
+  # TeaStore services metrics (via OTel Collector)
+  # The collector aggregates metrics from all services
+  - job_name: 'teastore-services'
+    static_configs:
+      - targets: ['otel-collector:8888']
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: '/metrics'
+    relabel_configs:
+      # Extract service name from metric labels
+      - source_labels: [__name__, service_name]
+        regex: '(teastore_.*);(.*)'
+        target_label: service
+        replacement: '${2}'

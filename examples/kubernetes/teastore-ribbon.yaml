@@ -67,7 +67,7 @@ spec:
         - name: OTEL_SERVICE_NAME
           value: "teastore-registry"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://localhost:4317"
+          value: "http://otel-collector:4317"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
@@ -126,7 +126,7 @@ spec:
         - name: OTEL_SERVICE_NAME
           value: "teastore-persistence"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://localhost:4317"
+          value: "http://otel-collector:4317"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
@@ -167,7 +167,7 @@ spec:
         - name: OTEL_SERVICE_NAME
           value: "teastore-auth"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://localhost:4317"
+          value: "http://otel-collector:4317"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
@@ -208,7 +208,7 @@ spec:
         - name: OTEL_SERVICE_NAME
           value: "teastore-image"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://localhost:4317"
+          value: "http://otel-collector:4317"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
@@ -249,7 +249,7 @@ spec:
         - name: OTEL_SERVICE_NAME
           value: "teastore-recommender"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://localhost:4317"
+          value: "http://otel-collector:4317"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
@@ -306,7 +306,7 @@ spec:
         - name: OTEL_SERVICE_NAME
           value: "teastore-webui"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://localhost:4317"
+          value: "http://otel-collector:4317"
         volumeMounts:
         - name: metrics
           mountPath: /metrics

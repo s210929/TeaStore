@@ -1,0 +1,809 @@
+#!/bin/bash
+# Complete TeaStore + OpenTelemetry + Prometheus All-in-One Deployment
+# Deploy with: kubectl apply -f teastore-with-otel-prometheus.yaml
+# 
+# This single file contains:
+# - OpenTelemetry Collector (OTLP receiver + Prometheus exporter)
+# - Prometheus (time series database + Web UI on port 9090)
+# - TeaStore Database
+# - TeaStore Services (Registry, Persistence, Auth, Image, Recommender, WebUI)
+# - All necessary Kubernetes Services
+# - All necessary RBAC configurations
+#
+# All services automatically configured to send metrics to OTel Collector
+# Collector automatically exports to Prometheus
+#
+# After deployment:
+#   kubectl port-forward svc/prometheus 9090:9090
+#   Open: http://localhost:9090
+
+---
+# ============================================================================
+# OPENTELEMETRY COLLECTOR CONFIGURATION
+# ============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: default
+  labels:
+    app: otel-collector
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+    processors:
+      batch:
+        timeout: 10s
+        send_batch_size: 1024
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 512
+        spike_limit_mib: 128
+      resource:
+        attributes:
+          add:
+            service.namespace: "teastore"
+            deployment.environment: "kubernetes"
+
+    exporters:
+      prometheus:
+        endpoint: "0.0.0.0:8888"
+        namespace: "teastore"
+        const_labels:
+          environment: "kubernetes"
+          cluster: "default"
+      logging:
+        loglevel: info
+
+    service:
+      pipelines:
+        metrics:
+          receivers: [otlp]
+          processors: [memory_limiter, batch, resource]
+          exporters: [prometheus, logging]
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch, resource]
+          exporters: [logging]
+      telemetry:
+        logs:
+          level: info
+
+---
+# OpenTelemetry Collector Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: default
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      serviceAccountName: otel-collector
+      containers:
+      - name: otel-collector
+        image: otel/opentelemetry-collector-k8s:0.88.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: otlp-grpc
+          containerPort: 4317
+          protocol: TCP
+        - name: otlp-http
+          containerPort: 4318
+          protocol: TCP
+        - name: metrics
+          containerPort: 8888
+          protocol: TCP
+        - name: health
+          containerPort: 13133
+          protocol: TCP
+        env:
+        - name: GOGC
+          value: "80"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        volumeMounts:
+        - name: collector-config
+          mountPath: /etc/otel-collector-config.yaml
+          subPath: otel-collector-config.yaml
+      volumes:
+      - name: collector-config
+        configMap:
+          name: otel-collector-config
+
+---
+# OpenTelemetry Collector Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: default
+  labels:
+    app: otel-collector
+spec:
+  type: ClusterIP
+  ports:
+  - name: otlp-grpc
+    port: 4317
+    targetPort: otlp-grpc
+    protocol: TCP
+  - name: otlp-http
+    port: 4318
+    targetPort: otlp-http
+    protocol: TCP
+  - name: metrics
+    port: 8888
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app: otel-collector
+
+---
+# OpenTelemetry Collector ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: otel-collector
+  namespace: default
+
+---
+# OpenTelemetry Collector ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otel-collector
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/proxy"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["services", "endpoints", "pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["statefulsets", "deployments", "daemonsets", "replicasets"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["batch"]
+  resources: ["jobs", "cronjobs"]
+  verbs: ["get", "list", "watch"]
+
+---
+# OpenTelemetry Collector ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otel-collector
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otel-collector
+subjects:
+- kind: ServiceAccount
+  name: otel-collector
+  namespace: default
+
+---
+# ============================================================================
+# PROMETHEUS CONFIGURATION
+# ============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: default
+  labels:
+    app: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: 'kubernetes'
+        environment: 'teastore'
+
+    alerting:
+      alertmanagers:
+        - static_configs:
+            - targets: []
+
+    rule_files: []
+
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+
+      - job_name: 'otel-collector'
+        static_configs:
+          - targets: ['otel-collector:8888']
+        scrape_interval: 10s
+        scrape_timeout: 5s
+        metrics_path: '/metrics'
+
+      - job_name: 'teastore-services'
+        static_configs:
+          - targets: ['otel-collector:8888']
+        scrape_interval: 15s
+        scrape_timeout: 10s
+        metrics_path: '/metrics'
+
+---
+# Prometheus Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: default
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        imagePullPolicy: IfNotPresent
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yml'
+          - '--storage.tsdb.path=/prometheus'
+          - '--storage.tsdb.retention.time=7d'
+          - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+          - '--web.console.templates=/usr/share/prometheus/consoles'
+          - '--web.enable-lifecycle'
+        ports:
+        - name: web
+          containerPort: 9090
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+        - name: storage
+          mountPath: /prometheus
+      volumes:
+      - name: config
+        configMap:
+          name: prometheus-config
+      - name: storage
+        emptyDir: {}
+
+---
+# Prometheus Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: default
+  labels:
+    app: prometheus
+spec:
+  type: LoadBalancer
+  ports:
+  - name: web
+    port: 9090
+    targetPort: web
+    protocol: TCP
+  selector:
+    app: prometheus
+
+---
+# Prometheus ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: default
+
+---
+# Prometheus ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/proxy"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["services", "endpoints", "pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "watch"]
+
+---
+# Prometheus ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: default
+
+---
+# ============================================================================
+# TEASTORE DATABASE
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teastore-db
+  labels:
+    app: teastore
+    run: teastore-db
+spec:
+  selector:
+    matchLabels:
+      app: teastore
+      run: teastore-db
+  template:
+    metadata:
+      labels:
+        app: teastore
+        run: teastore-db
+    spec:
+      containers:
+      - name: teastore-db
+        image: descartesresearch/teastore-db
+        ports:
+        - containerPort: 3306
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-db
+  labels:
+    app: teastore
+    run: teastore-db
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+  selector:
+    run: teastore-db
+
+---
+# ============================================================================
+# TEASTORE REGISTRY SERVICE
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teastore-registry
+  labels:
+    app: teastore
+    run: teastore-registry
+spec:
+  selector:
+    matchLabels:
+      app: teastore
+      run: teastore-registry
+  template:
+    metadata:
+      labels:
+        app: teastore
+        run: teastore-registry
+    spec:
+      initContainers:
+      - name: wait-for-otel-collector
+        image: busybox:1.28
+        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+      containers:
+      - name: teastore-registry
+        image: descartesresearch/teastore-registry
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USE_POD_IP
+          value: "true"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-registry"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-registry
+  labels:
+    app: teastore
+    run: teastore-registry
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    run: teastore-registry
+
+---
+# ============================================================================
+# TEASTORE PERSISTENCE SERVICE
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teastore-persistence
+  labels:
+    app: teastore
+    run: teastore-persistence
+spec:
+  selector:
+    matchLabels:
+      app: teastore
+      run: teastore-persistence
+  template:
+    metadata:
+      labels:
+        app: teastore
+        run: teastore-persistence
+    spec:
+      initContainers:
+      - name: wait-for-otel-collector
+        image: busybox:1.28
+        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+      containers:
+      - name: teastore-persistence
+        image: descartesresearch/teastore-persistence
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USE_POD_IP
+          value: "true"
+        - name: REGISTRY_HOST
+          value: "teastore-registry"
+        - name: DB_HOST
+          value: "teastore-db"
+        - name: DB_PORT
+          value: "3306"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-persistence"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-persistence
+  labels:
+    app: teastore
+    run: teastore-persistence
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    run: teastore-persistence
+
+---
+# ============================================================================
+# TEASTORE AUTH SERVICE
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teastore-auth
+  labels:
+    app: teastore
+    run: teastore-auth
+spec:
+  selector:
+    matchLabels:
+      app: teastore
+      run: teastore-auth
+  template:
+    metadata:
+      labels:
+        app: teastore
+        run: teastore-auth
+    spec:
+      initContainers:
+      - name: wait-for-otel-collector
+        image: busybox:1.28
+        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+      containers:
+      - name: teastore-auth
+        image: descartesresearch/teastore-auth
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USE_POD_IP
+          value: "true"
+        - name: REGISTRY_HOST
+          value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-auth"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-auth
+  labels:
+    app: teastore
+    run: teastore-auth
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    run: teastore-auth
+
+---
+# ============================================================================
+# TEASTORE IMAGE SERVICE
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teastore-image
+  labels:
+    app: teastore
+    run: teastore-image
+spec:
+  selector:
+    matchLabels:
+      app: teastore
+      run: teastore-image
+  template:
+    metadata:
+      labels:
+        app: teastore
+        run: teastore-image
+    spec:
+      initContainers:
+      - name: wait-for-otel-collector
+        image: busybox:1.28
+        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+      containers:
+      - name: teastore-image
+        image: descartesresearch/teastore-image
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USE_POD_IP
+          value: "true"
+        - name: REGISTRY_HOST
+          value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-image"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-image
+  labels:
+    app: teastore
+    run: teastore-image
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    run: teastore-image
+
+---
+# ============================================================================
+# TEASTORE RECOMMENDER SERVICE
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teastore-recommender
+  labels:
+    app: teastore
+    run: teastore-recommender
+spec:
+  selector:
+    matchLabels:
+      app: teastore
+      run: teastore-recommender
+  template:
+    metadata:
+      labels:
+        app: teastore
+        run: teastore-recommender
+    spec:
+      initContainers:
+      - name: wait-for-otel-collector
+        image: busybox:1.28
+        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+      containers:
+      - name: teastore-recommender
+        image: descartesresearch/teastore-recommender
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USE_POD_IP
+          value: "true"
+        - name: REGISTRY_HOST
+          value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-recommender"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-recommender
+  labels:
+    app: teastore
+    run: teastore-recommender
+spec:
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    run: teastore-recommender
+
+---
+# ============================================================================
+# TEASTORE WEBUI SERVICE
+# ============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teastore-webui
+  labels:
+    app: teastore
+    run: teastore-webui
+spec:
+  selector:
+    matchLabels:
+      app: teastore
+      run: teastore-webui
+  template:
+    metadata:
+      labels:
+        app: teastore
+        run: teastore-webui
+    spec:
+      initContainers:
+      - name: wait-for-otel-collector
+        image: busybox:1.28
+        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+      containers:
+      - name: teastore-webui
+        image: descartesresearch/teastore-webui
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USE_POD_IP
+          value: "true"
+        - name: REGISTRY_HOST
+          value: "teastore-registry"
+        - name: ENABLE_OTEL
+          value: "true"
+        - name: OTEL_SERVICE_NAME
+          value: "teastore-webui"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        volumeMounts:
+        - name: metrics
+          mountPath: /metrics
+      volumes:
+      - name: metrics
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teastore-webui
+  labels:
+    app: teastore
+    run: teastore-webui
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8080
+    protocol: TCP
+  selector:
+    run: teastore-webui
