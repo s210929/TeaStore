@@ -19,7 +19,7 @@ kubectl get pods -w
 
 # Access Prometheus UI
 kubectl port-forward svc/prometheus 9090:9090
-# Open: http://localhost:9090
+# Open: http://10.97.0.63/:9090
 ```
 
 **Documentation:**
