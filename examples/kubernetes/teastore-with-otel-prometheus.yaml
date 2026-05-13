@@ -173,6 +173,10 @@ spec:
     port: 8889
     targetPort: metrics
     protocol: TCP
+  - name: health
+    port: 13133
+    targetPort: health
+    protocol: TCP
   selector:
     app: otel-collector
 
