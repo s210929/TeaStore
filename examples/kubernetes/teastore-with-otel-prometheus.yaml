@@ -466,7 +466,7 @@ spec:
       initContainers:
       - name: wait-for-otel-collector
         image: busybox:1.28
-        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+        command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       containers:
       - name: teastore-registry
         image: descartesresearch/teastore-registry
@@ -527,7 +527,7 @@ spec:
       initContainers:
       - name: wait-for-otel-collector
         image: busybox:1.28
-        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+        command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       containers:
       - name: teastore-persistence
         image: descartesresearch/teastore-persistence
@@ -594,7 +594,7 @@ spec:
       initContainers:
       - name: wait-for-otel-collector
         image: busybox:1.28
-        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+        command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       containers:
       - name: teastore-auth
         image: descartesresearch/teastore-auth
@@ -657,7 +657,7 @@ spec:
       initContainers:
       - name: wait-for-otel-collector
         image: busybox:1.28
-        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+        command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       containers:
       - name: teastore-image
         image: descartesresearch/teastore-image
@@ -720,7 +720,7 @@ spec:
       initContainers:
       - name: wait-for-otel-collector
         image: busybox:1.28
-        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+        command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       containers:
       - name: teastore-recommender
         image: descartesresearch/teastore-recommender
@@ -783,7 +783,7 @@ spec:
       initContainers:
       - name: wait-for-otel-collector
         image: busybox:1.28
-        command: ['sh', '-c', 'until wget -q --spider http://otel-collector:13133; do echo waiting for collector; sleep 2; done']
+        command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       containers:
       - name: teastore-webui
         image: descartesresearch/teastore-webui
