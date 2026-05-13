@@ -128,18 +128,18 @@ spec:
           requests:
             cpu: 100m
             memory: 128Mi
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 13133
-          initialDelaySeconds: 60
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 13133
-          initialDelaySeconds: 30
-          periodSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 13133
+        #   initialDelaySeconds: 60
+        #   periodSeconds: 30
+        # readinessProbe:
+        #   httpGet:
+        #     path: /
+        #     port: 13133
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 10
         volumeMounts:
         - name: collector-config
           mountPath: /etc/otel-collector-config.yaml
