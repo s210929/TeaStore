@@ -57,7 +57,7 @@ data:
 
     exporters:
       prometheus:
-        endpoint: "0.0.0.0:8888"
+        endpoint: "0.0.0.0:8889"
         namespace: "teastore"
         const_labels:
           environment: "kubernetes"
@@ -113,7 +113,7 @@ spec:
           containerPort: 4318
           protocol: TCP
         - name: metrics
-          containerPort: 8888
+          containerPort: 8889
           protocol: TCP
         - name: health
           containerPort: 13133
@@ -170,7 +170,7 @@ spec:
     targetPort: otlp-http
     protocol: TCP
   - name: metrics
-    port: 8888
+    port: 8889
     targetPort: metrics
     protocol: TCP
   selector:
@@ -253,14 +253,14 @@ data:
 
       - job_name: 'otel-collector'
         static_configs:
-          - targets: ['otel-collector:8888']
+          - targets: ['otel-collector:8889']
         scrape_interval: 10s
         scrape_timeout: 5s
         metrics_path: '/metrics'
 
       - job_name: 'teastore-services'
         static_configs:
-          - targets: ['otel-collector:8888']
+          - targets: ['otel-collector:8889']
         scrape_interval: 15s
         scrape_timeout: 10s
         metrics_path: '/metrics'
