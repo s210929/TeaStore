@@ -46,7 +46,7 @@ exporters:
   # Optional: OTLP exporter for forwarding to another collector
   otlp:
     client:
-      endpoint: "localhost:4317"
+      endpoint: "10.97.0.63:4317"
       tls:
         insecure: true
 
