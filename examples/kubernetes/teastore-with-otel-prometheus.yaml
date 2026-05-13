@@ -70,6 +70,7 @@ data:
         verbosity: detailed
 
     service:
+      extensions: [health_check]
       pipelines:
         metrics:
           receivers: [otlp]
