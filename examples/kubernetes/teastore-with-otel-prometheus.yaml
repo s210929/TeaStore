@@ -98,9 +98,10 @@ spec:
       serviceAccountName: otel-collector
       containers:
       - name: otel-collector
-        image: otel/opentelemetry-collector-k8s:0.152.0
-        args: ["--config=/etc/otel-collector-config.yaml"]
+        image: otel/opentelemetry-collector-contrib:0.152.0
         imagePullPolicy: IfNotPresent
+        args:
+          - "--config=/etc/otel-collector-config.yaml"
         ports:
         - name: otlp-grpc
           containerPort: 4317
