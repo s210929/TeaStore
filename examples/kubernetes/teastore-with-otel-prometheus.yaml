@@ -48,9 +48,12 @@ data:
         spike_limit_mib: 128
       resource:
         attributes:
-          add:
-            service.namespace: "teastore"
-            deployment.environment: "kubernetes"
+          - key: service.namespace
+            value: teastore
+            action: upsert
+          - key: deployment.environment
+            value: kubernetes
+            action: upsert
 
     exporters:
       prometheus:
@@ -59,19 +62,19 @@ data:
         const_labels:
           environment: "kubernetes"
           cluster: "default"
-      logging:
-        loglevel: info
+      debug:
+        verbosity: detailed
 
     service:
       pipelines:
         metrics:
           receivers: [otlp]
           processors: [memory_limiter, batch, resource]
-          exporters: [prometheus, logging]
+          exporters: [prometheus, debug]
         traces:
           receivers: [otlp]
           processors: [memory_limiter, batch, resource]
-          exporters: [logging]
+          exporters: [debug]
       telemetry:
         logs:
           level: info
