@@ -493,7 +493,7 @@ spec:
         emptyDir: {}
       - name: otel-agent
         hostPath:
-          path: ~/otel
+          path: /root/otel
           type: Directory
 ---
 apiVersion: v1
@@ -568,7 +568,7 @@ spec:
         emptyDir: {}
       - name: otel-agent
         hostPath:
-          path: ~/otel
+          path: /root/otel
           type: Directory
 ---
 apiVersion: v1
@@ -639,7 +639,7 @@ spec:
         emptyDir: {}
       - name: otel-agent
         hostPath:
-          path: ~/otel
+          path: /root/otel
           type: Directory
 ---
 apiVersion: v1
@@ -710,7 +710,7 @@ spec:
         emptyDir: {}
       - name: otel-agent
         hostPath:
-          path: ~/otel
+          path: /root/otel
           type: Directory
 ---
 apiVersion: v1
@@ -781,7 +781,7 @@ spec:
         emptyDir: {}
       - name: otel-agent
         hostPath:
-          path: ~/otel
+          path: /root/otel
           type: Directory
 ---
 apiVersion: v1
@@ -852,7 +852,7 @@ spec:
         emptyDir: {}
       - name: otel-agent
         hostPath:
-          path: ~/otel
+          path: /root/otel
           type: Directory
 ---
 apiVersion: v1
