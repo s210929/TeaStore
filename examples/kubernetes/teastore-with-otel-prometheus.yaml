@@ -468,13 +468,14 @@ spec:
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       - name: download-otel-agent
-        image: busybox:1.28
+        image: alpine:latest
         command:
           - sh
           - -c
           - |
+            apk add --no-cache curl
             mkdir -p /otel
-            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            curl -L -o /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -547,13 +548,14 @@ spec:
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       - name: download-otel-agent
-        image: busybox:1.28
+        image: alpine:latest
         command:
           - sh
           - -c
           - |
+            apk add --no-cache curl
             mkdir -p /otel
-            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            curl -L -o /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -632,13 +634,14 @@ spec:
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       - name: download-otel-agent
-        image: busybox:1.28
+        image: alpine:latest
         command:
           - sh
           - -c
           - |
+            apk add --no-cache curl
             mkdir -p /otel
-            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            curl -L -o /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -713,13 +716,14 @@ spec:
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       - name: download-otel-agent
-        image: busybox:1.28
+        image: alpine:latest
         command:
           - sh
           - -c
           - |
+            apk add --no-cache curl
             mkdir -p /otel
-            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            curl -L -o /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -794,13 +798,14 @@ spec:
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       - name: download-otel-agent
-        image: busybox:1.28
+        image: alpine:latest
         command:
           - sh
           - -c
           - |
+            apk add --no-cache curl
             mkdir -p /otel
-            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            curl -L -o /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -875,13 +880,14 @@ spec:
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
       - name: download-otel-agent
-        image: busybox:1.28
+        image: alpine:latest
         command:
           - sh
           - -c
           - |
+            apk add --no-cache curl
             mkdir -p /otel
-            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            curl -L -o /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
