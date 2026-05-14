@@ -474,7 +474,7 @@ spec:
           - -c
           - |
             mkdir -p /otel
-            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -553,7 +553,7 @@ spec:
           - -c
           - |
             mkdir -p /otel
-            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -638,7 +638,7 @@ spec:
           - -c
           - |
             mkdir -p /otel
-            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -719,7 +719,7 @@ spec:
           - -c
           - |
             mkdir -p /otel
-            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -800,7 +800,7 @@ spec:
           - -c
           - |
             mkdir -p /otel
-            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
@@ -881,7 +881,7 @@ spec:
           - -c
           - |
             mkdir -p /otel
-            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            wget --no-check-certificate -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
             chmod +x /otel/opentelemetry-javaagent.jar
         volumeMounts:
         - name: otel-agent
