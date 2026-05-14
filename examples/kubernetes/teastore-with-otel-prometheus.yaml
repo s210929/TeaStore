@@ -467,6 +467,17 @@ spec:
       - name: wait-for-otel-collector
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
+      - name: download-otel-agent
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - |
+            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            chmod +x /otel/opentelemetry-javaagent.jar
+        volumeMounts:
+        - name: otel-agent
+          mountPath: /otel
       containers:
       - name: teastore-registry
         image: descartesresearch/teastore-registry
@@ -481,11 +492,17 @@ spec:
           value: "teastore-registry"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector:4317"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/otel/opentelemetry-javaagent.jar"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
+        - name: otel-agent
+          mountPath: /otel
       volumes:
       - name: metrics
+        emptyDir: {}
+      - name: otel-agent
         emptyDir: {}
 ---
 apiVersion: v1
@@ -528,6 +545,17 @@ spec:
       - name: wait-for-otel-collector
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
+      - name: download-otel-agent
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - |
+            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            chmod +x /otel/opentelemetry-javaagent.jar
+        volumeMounts:
+        - name: otel-agent
+          mountPath: /otel
       containers:
       - name: teastore-persistence
         image: descartesresearch/teastore-persistence
@@ -548,11 +576,17 @@ spec:
           value: "teastore-persistence"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector:4317"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/otel/opentelemetry-javaagent.jar"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
+        - name: otel-agent
+          mountPath: /otel
       volumes:
       - name: metrics
+        emptyDir: {}
+      - name: otel-agent
         emptyDir: {}
 ---
 apiVersion: v1
@@ -595,6 +629,17 @@ spec:
       - name: wait-for-otel-collector
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
+      - name: download-otel-agent
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - |
+            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            chmod +x /otel/opentelemetry-javaagent.jar
+        volumeMounts:
+        - name: otel-agent
+          mountPath: /otel
       containers:
       - name: teastore-auth
         image: descartesresearch/teastore-auth
@@ -611,11 +656,17 @@ spec:
           value: "teastore-auth"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector:4317"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/otel/opentelemetry-javaagent.jar"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
+        - name: otel-agent
+          mountPath: /otel
       volumes:
       - name: metrics
+        emptyDir: {}
+      - name: otel-agent
         emptyDir: {}
 ---
 apiVersion: v1
@@ -658,6 +709,17 @@ spec:
       - name: wait-for-otel-collector
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
+      - name: download-otel-agent
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - |
+            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            chmod +x /otel/opentelemetry-javaagent.jar
+        volumeMounts:
+        - name: otel-agent
+          mountPath: /otel
       containers:
       - name: teastore-image
         image: descartesresearch/teastore-image
@@ -674,11 +736,17 @@ spec:
           value: "teastore-image"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector:4317"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/otel/opentelemetry-javaagent.jar"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
+        - name: otel-agent
+          mountPath: /otel
       volumes:
       - name: metrics
+        emptyDir: {}
+      - name: otel-agent
         emptyDir: {}
 ---
 apiVersion: v1
@@ -721,6 +789,17 @@ spec:
       - name: wait-for-otel-collector
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
+      - name: download-otel-agent
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - |
+            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            chmod +x /otel/opentelemetry-javaagent.jar
+        volumeMounts:
+        - name: otel-agent
+          mountPath: /otel
       containers:
       - name: teastore-recommender
         image: descartesresearch/teastore-recommender
@@ -737,11 +816,17 @@ spec:
           value: "teastore-recommender"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector:4317"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/otel/opentelemetry-javaagent.jar"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
+        - name: otel-agent
+          mountPath: /otel
       volumes:
       - name: metrics
+        emptyDir: {}
+      - name: otel-agent
         emptyDir: {}
 ---
 apiVersion: v1
@@ -784,6 +869,17 @@ spec:
       - name: wait-for-otel-collector
         image: busybox:1.28
         command: ['sh', '-c', 'until nslookup otel-collector; do echo waiting for collector; sleep 2; done']
+      - name: download-otel-agent
+        image: busybox:1.28
+        command:
+          - sh
+          - -c
+          - |
+            wget -O /otel/opentelemetry-javaagent.jar https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.32.0/opentelemetry-javaagent.jar
+            chmod +x /otel/opentelemetry-javaagent.jar
+        volumeMounts:
+        - name: otel-agent
+          mountPath: /otel
       containers:
       - name: teastore-webui
         image: descartesresearch/teastore-webui
@@ -800,11 +896,17 @@ spec:
           value: "teastore-webui"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector:4317"
+        - name: JAVA_TOOL_OPTIONS
+          value: "-javaagent:/otel/opentelemetry-javaagent.jar"
         volumeMounts:
         - name: metrics
           mountPath: /metrics
+        - name: otel-agent
+          mountPath: /otel
       volumes:
       - name: metrics
+        emptyDir: {}
+      - name: otel-agent
         emptyDir: {}
 ---
 apiVersion: v1
