@@ -314,8 +314,8 @@ spec:
             cpu: 1000m
             memory: 1Gi
           requests:
-            cpu: 250m
-            memory: 512Mi
+            cpu: 100m
+            memory: 128Mi
         livenessProbe:
           httpGet:
             path: /-/healthy
@@ -501,6 +501,13 @@ spec:
           mountPath: /metrics
         - name: otel-agent
           mountPath: /otel
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: metrics
         emptyDir: {}
@@ -587,6 +594,13 @@ spec:
           mountPath: /metrics
         - name: otel-agent
           mountPath: /otel
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: metrics
         emptyDir: {}
@@ -669,6 +683,13 @@ spec:
           mountPath: /metrics
         - name: otel-agent
           mountPath: /otel
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: metrics
         emptyDir: {}
@@ -751,6 +772,13 @@ spec:
           mountPath: /metrics
         - name: otel-agent
           mountPath: /otel
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: metrics
         emptyDir: {}
@@ -833,6 +861,13 @@ spec:
           mountPath: /metrics
         - name: otel-agent
           mountPath: /otel
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: metrics
         emptyDir: {}
@@ -915,6 +950,13 @@ spec:
           mountPath: /metrics
         - name: otel-agent
           mountPath: /otel
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
       volumes:
       - name: metrics
         emptyDir: {}
