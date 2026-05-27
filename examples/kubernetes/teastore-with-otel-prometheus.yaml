@@ -952,8 +952,8 @@ spec:
           mountPath: /otel
         resources:
           limits:
-            cpu: 500m
-            memory: 512Mi
+            cpu: 1000m
+            memory: 1Gi
       volumes:
       - name: metrics
         emptyDir: {}
