@@ -1,7 +1,7 @@
 import logging
-from random import randint, choice
+from random import randint, choice, gauss
 
-from locust import HttpUser, task
+from locust import HttpUser, task, LoadTestShape
 
 # logging
 logging.getLogger().setLevel(logging.INFO)
@@ -133,3 +133,28 @@ class UserBehavior(HttpUser):
             logging.info("Successful logout.")
         else:
             logging.error(f"Could not log out - status: {logout_request.status_code}")
+
+class CustomLoadShape(LoadTestShape):
+    def tick(self):
+        run_time = self.get_run_time()
+        
+        if run_time < 60:
+            # Ramp up phase: gradually increase with random variations
+            base_users = run_time
+            # Add random fluctuation (±30% of base)
+            user_count = max(1, int(base_users + gauss(0, base_users * 0.3)))
+            spawn_rate = 2
+        elif run_time < 180:
+            # Steady state: fluctuate randomly between 50-150 users
+            user_count = randint(50, 150)
+            spawn_rate = 3
+        elif run_time < 240:
+            # Wind down phase: decrease with random variations
+            remaining_time = 240 - run_time
+            base_users = remaining_time
+            user_count = max(1, int(base_users + gauss(0, base_users * 0.3)))
+            spawn_rate = 2
+        else:
+            return None
+        
+        return (user_count, spawn_rate)

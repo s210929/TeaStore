@@ -938,7 +938,7 @@ spec:
         resources:
           limits:
             cpu: 1000m
-            memory: 1Gi
+            memory: 4Gi
       volumes:
       - name: metrics
         emptyDir: {}
