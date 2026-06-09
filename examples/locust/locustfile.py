@@ -1,11 +1,93 @@
-import logging
+import logging, requests
 from random import randint, choice, gauss
 
-from locust import HttpUser, task, LoadTestShape
+from locust import HttpUser, task, LoadTestShape, events
 
 # logging
 logging.getLogger().setLevel(logging.INFO)
 
+PROMETHEUS_URL = "http://localhost:9090/api/v1/query"
+
+def query_prometheus(promql_query):
+    """Helper function to query Prometheus"""
+    try:
+        response = requests.get(PROMETHEUS_URL, params={"query": promql_query})
+        result = response.json()
+        if result['data']['result']:
+            return float(result['data']['result'][0]['value'][1])
+        return None
+    except Exception as e:
+        print(f"  Error querying '{promql_query}': {e}")
+        return None
+
+@events.test_stop.add_listener
+def on_test_stop(environment, **kwargs):
+    stats = environment.stats
+    total_requests = sum(stat.num_requests for stat in stats.entries.values())
+    total_failures = sum(stat.num_failures for stat in stats.entries.values())
+    test_duration = environment.stats.total.total_response_time / 1000
+    
+    throughput = total_requests / test_duration if test_duration > 0 else 0
+    error_rate = (total_failures / total_requests * 100) if total_requests > 0 else 0
+    
+    print(f"\n{'='*60}")
+    print(f"LOAD TEST RESULTS".center(60))
+    print(f"{'='*60}")
+    
+    # Locust metrics
+    print(f"\n📊 LOAD TEST METRICS:")
+    print(f"  Total Requests: {total_requests}")
+    print(f"  Total Failures: {total_failures}")
+    print(f"  Test Duration: {test_duration:.2f} seconds")
+    print(f"  Throughput: {throughput:.2f} req/sec")
+    print(f"  Error Rate: {error_rate:.2f}%")
+    
+    # Query Prometheus for resource metrics
+    print(f"\n🔍 QUERYING PROMETHEUS FOR SYSTEM METRICS...")
+    
+    # Requests per second
+    rps = query_prometheus("sum(rate(teastore_http_server_request_count_total[1m]))")
+    
+    # Error rate from Prometheus
+    error_rate_prom = query_prometheus("sum(rate(teastore_http_server_request_count_total{status=~\"5..\"}[1m]))")
+    
+    # P95 Latency
+    p95_latency = query_prometheus("histogram_quantile(0.95, rate(teastore_http_server_duration_milliseconds_bucket[5m]))")
+    
+    # JVM Heap Memory
+    heap_memory_bytes = query_prometheus("process_runtime_java_memory_usage_bytes{type=\"heap\"}")
+    heap_memory_mb = heap_memory_bytes / (1024 * 1024) if heap_memory_bytes else None
+    
+    # CPU Usage
+    cpu_usage = query_prometheus("avg(rate(process_runtime_java_cpu_usage_seconds[1m]))")
+    cpu_percent = cpu_usage * 100 if cpu_usage else None
+    
+    # Active Threads
+    active_threads = query_prometheus("jvm_threads_live_threads")
+    
+    # Display results
+    print(f"\n📈 PROMETHEUS METRICS:")
+    if rps is not None:
+        print(f"  Requests/sec: {rps:.2f}")
+    if error_rate_prom is not None:
+        print(f"  Error Rate (5xx): {error_rate_prom:.4f} req/sec")
+    if p95_latency is not None:
+        print(f"  P95 Latency: {p95_latency:.2f} ms")
+    if heap_memory_mb is not None:
+        print(f"  Heap Memory: {heap_memory_mb:.2f} MB")
+    if cpu_percent is not None:
+        print(f"  CPU Usage: {cpu_percent:.2f}%")
+    if active_threads is not None:
+        print(f"  Active Threads: {int(active_threads)}")
+    
+    # Resource demand analysis
+    print(f"\n💾 RESOURCE DEMAND ANALYSIS:")
+    if heap_memory_mb and throughput > 0:
+        print(f"  Memory per Request: {heap_memory_mb / throughput:.4f} MB/req")
+    if cpu_percent and throughput > 0:
+        print(f"  CPU per Request: {cpu_percent / throughput:.6f}% per req/sec")
+    
+    print(f"\n{'='*60}\n")
 
 class UserBehavior(HttpUser):
 
